@@ -11,12 +11,20 @@ with open(os.path.join(ROOT, "content-raw", "journal-notes-links.json"), encodin
 def linkify_known(notes):
     """Turn 'Label (url)' / 'Label: url' pairs the live site renders as a
     hyperlink into markdown links, using the exact (text, href) pairs
-    scraped from the live page."""
+    scraped from the live page. Some labels are linked on the live site
+    with no adjacent URL text at all (a Google Sites "smart chip"), so
+    fall back to linking the bare label if it appears unlinked."""
     for item in KNOWN_LINKS:
         text, href = item["text"], item["href"]
         href_re = re.escape(href)
-        notes = re.sub(rf"{re.escape(text)}\s*\({href_re}\)", f"[{text}]({href})", notes)
-        notes = re.sub(rf"{re.escape(text)}\s*:\s*{href_re}", f"[{text}]({href})", notes)
+        text_re = re.escape(text)
+        notes = re.sub(rf"{text_re}\s*\({href_re}\)", f"[{text}]({href})", notes)
+        notes = re.sub(rf"{text_re}\s*:\s*{href_re}", f"[{text}]({href})", notes)
+        if f"[{text}]" not in notes:
+            notes = re.sub(rf"(?<!\[){text_re}(?!\])", f"[{text}]({href})", notes, count=1)
+    # any bare URL still left unlinked (no label attached in the source
+    # text) becomes a plain link using the URL itself as the link text
+    notes = re.sub(r"(?<!\]\()(https?://[^\s;,()]+)", r"[\1](\1)", notes)
     return notes
 
 def md_inline(s):
@@ -170,11 +178,11 @@ def build_conference():
                 raw_wo = raw
             citation_html = md_inline(raw_wo)
             meta_html = f'<p class="entry-meta">{rest_note}</p>' if rest_note else ""
+            inline_pills = pills_html(pills).replace('<span class="tag-row" style="margin-top:6px;">', '<span class="tag-row tag-row-inline">')
             entries.append(f'''      <li class="pub-entry">
         <div class="entry-body">
-          <p class="entry-title">{citation_html}</p>
+          <p class="entry-title">{citation_html} {inline_pills}</p>
           {meta_html}
-          {pills_html(pills)}
         </div>
       </li>''')
         sections.append(f'    <h3 class="year-heading">{year}</h3>\n    <ul class="pub-list">\n' + "\n".join(entries) + "\n    </ul>")
@@ -205,7 +213,7 @@ codes_html = '''      <div class="card-grid">
         <div class="card">
           <img src="/assets/img/research/code-comm-chain.jpg" alt="End-to-end wireless communication chain simulator interface" loading="lazy">
           <h3>End-to-End Wireless Communication Chain Simulator</h3>
-          <p>A MATLAB application for modelling, testing, and demonstrating complete wireless communication chains, built to align with the laboratory's transmission hardware. It supports sinusoidal and complex waveform transmission, with built-in digital compensation modules &mdash; including IQ-imbalance correction and coarse time-synchronisation &mdash; for evaluating system robustness and isolating hardware-induced impairments. Designed as a standalone interface for rapid experimentation, algorithm development, and hardware-in-the-loop testing.</p>
+          <p>A MATLAB application for modelling, testing, and demonstrating complete wireless communication chains, built to align with the laboratory's transmission hardware. It supports sinusoidal and complex waveform transmission, with built-in digital compensation modules, including IQ-imbalance correction and coarse time-synchronisation, for evaluating system robustness and isolating hardware-induced impairments. Designed as a standalone interface for rapid experimentation, algorithm development, and hardware-in-the-loop testing.</p>
           <p class="small">Developed by <a href="https://www.linkedin.com/in/marlon-kha-208141293/">Marlon Kha</a></p>
           <div class="entry-links"><a href="https://github.com/withawat-cell/comm_chain.git">Repository &rarr;</a></div>
         </div>
@@ -213,8 +221,8 @@ codes_html = '''      <div class="card-grid">
           <img src="/assets/img/research/code-cst-sim.jpg" alt="CST simulation of a substrateless terahertz waveguide" loading="lazy">
           <h3>CST Simulation of Substrateless Terahertz Waveguide</h3>
           <p>A Python automation script for CST Studio Suite (Python 3.12, CST Microwave Studio 2025) that builds, configures, and runs full-wave transient simulations for substrateless (effective-medium-clad) dielectric terahertz waveguides, based on the design principles below.</p>
-          <p class="small">W. Gao et al., "Effective-medium-cladded dielectric waveguides for terahertz waves," <em>Optics Express</em>, vol. 27, no. 26, pp. 38721&ndash;38734, 2019. <a href="https://doi.org/10.1364/OE.382181">doi.org/10.1364/OE.382181</a><br>
-          W. Gao et al., "Characteristics of effective-medium-clad dielectric waveguides," <em>IEEE Transactions on Terahertz Science and Technology</em>, vol. 11, no. 1, pp. 28&ndash;41, 2021. <a href="https://ieeexplore.ieee.org/document/9195766">ieeexplore.ieee.org/document/9195766</a></p>
+          <p class="small">W. Gao, X. Yu, M. Fujita, T. Nagatsuma, C. Fumeaux, and W. Withayachumnankul, "<a href="https://doi.org/10.1364/OE.382181">Effective-medium-cladded dielectric waveguides for terahertz waves</a>," <em>Optics Express</em>, vol. 27, no. 26, pp. 38721&ndash;38734, 2019.<br>
+          W. Gao, W. S.-L. Lee, X. Yu, M. Fujita, T. Nagatsuma, C. Fumeaux, and W. Withayachumnankul, "<a href="https://doi.org/10.1109/TTHZ.2020.3023917">Characteristics of effective-medium-clad dielectric waveguides</a>," <em>IEEE Transactions on Terahertz Science and Technology</em>, vol. 11, no. 1, pp. 28&ndash;41, 2021.</p>
           <div class="entry-links"><a href="https://gist.github.com/withawat-cell/5f3192e66faae0e291e63ef4a68d6c75">Gist &rarr;</a></div>
         </div>
       </div>'''
@@ -230,7 +238,7 @@ template = """<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/style.css?v=20260920d">
 </head>
 <body>
 
@@ -321,8 +329,8 @@ template = """<!DOCTYPE html>
   </div>
 </footer>
 
-<script src="/assets/js/main.js"></script>
-<script src="/assets/js/publications-filter.js"></script>
+<script src="/assets/js/main.js?v=20260920"></script>
+<script src="/assets/js/publications-filter.js?v=20260920"></script>
 </body>
 </html>
 """

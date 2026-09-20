@@ -16,11 +16,30 @@ def md_inline(s):
     s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
     return s
 
+# internal cross-reference notes (left over from this project's own research
+# notes) should point at the real page, not at another content-raw filename
+CROSS_REFS = {
+    "publications-codes.md": ("/publications.html#codes", "Codes"),
+    "people-researchers.md": ("/people/researchers.html", "Researchers"),
+    "people-alumni.md": ("/people/alumni.html", "Alumni"),
+}
+
+def fix_cross_refs(s):
+    for filename, (href, label) in CROSS_REFS.items():
+        s = s.replace(f"see {filename}", f'see <a href="{href}">{label}</a>')
+    return s
+
 AWARD_KEYWORDS = ["Scholarship", "Fellowship", "Award", "Medal", "Prize", "Commendation", "Grant"]
+
+CROSS_REF_PAREN_RE = re.compile(r"\s*\((also[^()]*?see [\w-]+\.md)\)")
 
 def format_notes(notes):
     if not notes.strip():
         return ""
+    # pull "(also ... see some-file.md)" asides out of whatever clause they're
+    # stuck to, so they render as their own plain-text note, not inside a pill
+    asides = CROSS_REF_PAREN_RE.findall(notes)
+    notes = CROSS_REF_PAREN_RE.sub("", notes)
     clauses = [c.strip() for c in notes.split(";") if c.strip()]
     out = []
     for c in clauses:
@@ -28,6 +47,9 @@ def format_notes(notes):
             out.append(f'<span class="tag tag-award">{md_inline(c)}</span>')
         else:
             out.append(md_inline(c))
+    for a in asides:
+        a = a.replace("—", ",")
+        out.append(f"({fix_cross_refs(a)})")
     return " ".join(out)
 
 sections = []
@@ -65,7 +87,7 @@ template = """<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/style.css?v=20260920d">
 </head>
 <body>
 
@@ -125,7 +147,7 @@ template = """<!DOCTYPE html>
   </div>
 </footer>
 
-<script src="/assets/js/main.js"></script>
+<script src="/assets/js/main.js?v=20260920"></script>
 </body>
 </html>
 """

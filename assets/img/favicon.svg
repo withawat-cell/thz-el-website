@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#0b0c0e"/>
+  <rect x="1.5" y="1.5" width="29" height="29" fill="none" stroke="#5c8ad1" stroke-width="1.5"/>
+  <text x="16" y="21" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="12" fill="#5c8ad1" text-anchor="middle">THz</text>
+</svg>

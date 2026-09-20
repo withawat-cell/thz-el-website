@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Opportunities — Terahertz Engineering Laboratory</title>
-<meta name="description" content="Higher degree by research and coursework project opportunities at the Terahertz Engineering Laboratory, Adelaide University.">
+<title>Codes — Terahertz Engineering Laboratory</title>
+<meta name="description" content="Research software from the Terahertz Engineering Laboratory, Adelaide University.">
 <link rel="icon" href="/assets/img/brand/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,13 +24,13 @@
       <ul>
         <li><a href="/index.html">Home</a></li>
         <li><a href="/research.html">Research</a></li>
-        <li class="has-children">
+        <li class="has-children open">
           <button class="nav-parent" aria-expanded="false">Publications</button>
           <div class="submenu">
             <a href="/publications/journal-articles.html">Journal Articles</a>
             <a href="/publications/conference-presentations.html">Conference Presentations</a>
             <a href="/publications/phd-theses.html">PhD Theses</a>
-            <a href="/publications/codes.html">Codes</a>
+            <a href="/publications/codes.html" aria-current="page">Codes</a>
           </div>
         </li>
         <li class="has-children">
@@ -42,7 +42,7 @@
             <a href="/people/visitors.html">Visitors</a>
           </div>
         </li>
-        <li><a href="/opportunities.html" aria-current="page">Opportunities</a></li>
+        <li><a href="/opportunities.html">Opportunities</a></li>
         <li><a href="/contact.html">Contact</a></li>
       </ul>
     </nav>
@@ -54,9 +54,9 @@
 
   <section class="page-hero">
     <div class="wrap-wide">
-      <p class="hero-eyebrow">Join us</p>
-      <h1>Opportunities</h1>
-      <p class="lead">We are always keen to hear from motivated students interested in terahertz engineering.</p>
+      <p class="hero-eyebrow">Publications</p>
+      <h1>Codes</h1>
+      <p class="lead">Research software developed at the Terahertz Engineering Laboratory.</p>
     </div>
   </section>
 
@@ -64,18 +64,19 @@
     <div class="wrap-wide">
       <div class="card-grid">
         <div class="card">
-          <h3>Higher degree by research (MPhil / PhD)</h3>
-          <p>We are looking for self-motivated higher degree by research students to join our team.</p>
-          <p>For domestic applicants, as well as international applicants who have completed a relevant Australian or New Zealand qualification, see the <a href="https://adelaide.edu.au/research/research-degrees/research-scholarships/">Graduate Research Talent Scheme</a>.</p>
-          <p>For international applicants with an overseas qualification, we might have a suitable scholarship available.</p>
-          <p>If you are interested, send your CV and transcripts to <a href="mailto:withawat@adelaide.edu.au">withawat@adelaide.edu.au</a>. Do not put it in a file-sharing facility, as it will not be opened.</p>
-          <p class="small">You can expect a reply within 24 hours if your academic record is competitive for scholarship. Due to a volume of enquiries, unfortunately we cannot respond to every email, please do not resend if you do not receive a response.</p>
+          <img src="/assets/img/research/code-comm-chain.jpg?v=20260921g" alt="End-to-end wireless communication chain simulator interface" loading="lazy">
+          <h3>End-to-End Wireless Communication Chain Simulator</h3>
+          <p>A MATLAB application for modelling, testing, and demonstrating complete wireless communication chains, built to align with the laboratory's transmission hardware. It supports sinusoidal and complex waveform transmission, with built-in digital compensation modules, including IQ-imbalance correction and coarse time-synchronisation, for evaluating system robustness and isolating hardware-induced impairments. Designed as a standalone interface for rapid experimentation, algorithm development, and hardware-in-the-loop testing.</p>
+          <p class="small">Developed by <a href="https://www.linkedin.com/in/marlon-kha-208141293/">Marlon Kha</a></p>
+          <div class="entry-links"><a href="https://github.com/withawat-cell/comm_chain.git">Repository &rarr;</a></div>
         </div>
         <div class="card">
-          <h3>Projects &amp; research experience for Adelaide University students</h3>
-          <p>Coursework students interested in honours or master's projects are encouraged to reach out for a discussion prior to selecting their project. Owing to our vast activities around terahertz technology, from device design and sensing to communications, we can tailor a project to match your interest and background.</p>
-          <p>Highly-motivated Adelaide students with a strong passion for electromagnetics, sensing, or communications are also welcome to contact us about research experience opportunities.</p>
-          <p>Send your relevant transcript to <a href="mailto:withawat@adelaide.edu.au">withawat@adelaide.edu.au</a>.</p>
+          <img src="/assets/img/research/code-cst-sim.jpg?v=20260921g" alt="CST simulation of a substrateless terahertz waveguide" loading="lazy">
+          <h3>CST Simulation of Substrateless Terahertz Waveguide</h3>
+          <p>A Python automation script for CST Studio Suite (Python 3.12, CST Microwave Studio 2025) that builds, configures, and runs full-wave transient simulations for substrateless (effective-medium-clad) dielectric terahertz waveguides, based on the design principles below.</p>
+          <p class="small">W. Gao, X. Yu, M. Fujita, T. Nagatsuma, C. Fumeaux, and W. Withayachumnankul, "<a href="https://doi.org/10.1364/OE.382181">Effective-medium-cladded dielectric waveguides for terahertz waves</a>," <em>Optics Express</em>, vol. 27, no. 26, pp. 38721&ndash;38734, 2019.<br>
+          W. Gao, W. S.-L. Lee, X. Yu, M. Fujita, T. Nagatsuma, C. Fumeaux, and W. Withayachumnankul, "<a href="https://doi.org/10.1109/TTHZ.2020.3023917">Characteristics of effective-medium-clad dielectric waveguides</a>," <em>IEEE Transactions on Terahertz Science and Technology</em>, vol. 11, no. 1, pp. 28&ndash;41, 2021.</p>
+          <div class="entry-links"><a href="https://gist.github.com/withawat-cell/5f3192e66faae0e291e63ef4a68d6c75">Gist &rarr;</a></div>
         </div>
       </div>
     </div>

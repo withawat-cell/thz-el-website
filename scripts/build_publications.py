@@ -1,8 +1,23 @@
 import re
 import os
+import json
 import html
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+with open(os.path.join(ROOT, "content-raw", "journal-notes-links.json"), encoding="utf-8") as f:
+    KNOWN_LINKS = json.load(f)
+
+def linkify_known(notes):
+    """Turn 'Label (url)' / 'Label: url' pairs the live site renders as a
+    hyperlink into markdown links, using the exact (text, href) pairs
+    scraped from the live page."""
+    for item in KNOWN_LINKS:
+        text, href = item["text"], item["href"]
+        href_re = re.escape(href)
+        notes = re.sub(rf"{re.escape(text)}\s*\({href_re}\)", f"[{text}]({href})", notes)
+        notes = re.sub(rf"{re.escape(text)}\s*:\s*{href_re}", f"[{text}]({href})", notes)
+    return notes
 
 def md_inline(s):
     s = s.strip()
@@ -20,32 +35,47 @@ def shorten(original):
             p = p[len(pre):]
             break
     if len(p) <= MAX_PILL_LEN:
-        return (p, None)
-    cut = p[:MAX_PILL_LEN].rsplit(" ", 1)[0]
-    return (cut + "…", original)
+        return p
+    return p[:MAX_PILL_LEN].rsplit(" ", 1)[0] + "…"
+
+LINK_RE = re.compile(r'<a href="([^"]+)">([^<]+)</a>')
 
 def split_notes(notes):
-    """Split a Notes cell into (pills, remainder_html). Anything without an
-    embedded link is short enough (after trimming) to read as a badge.
-    Each pill is (short_text, full_text_or_None-if-not-truncated)."""
+    """Split a Notes cell into (pills, remainder_html).
+    Each pill is a dict: {short, full (title tooltip or None), href (or None)}."""
     if not notes or not notes.strip():
         return [], ""
+    notes = linkify_known(notes)
     parts = [p.strip() for p in notes.split(";") if p.strip()]
     pills, rest = [], []
     for p in parts:
-        if "http" in p or "://" in p:
-            rest.append(md_inline(p))
+        p_html = md_inline(p)
+        links = LINK_RE.findall(p_html)
+        plain_len = len(re.sub(r"<[^>]+>", "", p_html))
+        anchor_len = sum(len(t) for _, t in links)
+        if not links:
+            short = shorten(p_html)
+            pills.append({"short": short, "full": p_html if short != p_html else None, "href": None})
+        elif len(links) == 1 and anchor_len >= plain_len * 0.7:
+            href, text = links[0]
+            short = shorten(text)
+            pills.append({"short": short, "full": text if short != text else None, "href": href})
         else:
-            pills.append(shorten(p))
+            rest.append(p_html)
     return pills, " &middot; ".join(rest)
 
 def pills_html(pills):
     if not pills:
         return ""
     spans = []
-    for short, full in pills:
-        title_attr = f' title="{html.escape(full)}"' if full else ""
-        spans.append(f'<span class="tag tag-award"{title_attr}>{html.escape(short)}</span>')
+    for pill in pills:
+        title_attr = f' title="{html.escape(pill["full"])}"' if pill["full"] else ""
+        label = html.escape(pill["short"])
+        if pill["href"]:
+            inner = f'<a href="{html.escape(pill["href"])}">{label}</a>'
+        else:
+            inner = label
+        spans.append(f'<span class="tag tag-award"{title_attr}>{inner}</span>')
     return '<span class="tag-row" style="margin-top:6px;">' + "".join(spans) + "</span>"
 
 # ---------- Journal articles ----------
@@ -90,8 +120,8 @@ def build_journal():
                 title_linked = f'<a href="{html.escape(primary_doi)}">{m.group(1)}</a>'
                 citation_html = citation_html[:m.start()] + '"' + title_linked + '"' + citation_html[m.end():]
             pills, rest = split_notes(notes)
-            if any(short == "Accepted" for short, _ in pills):
-                pills = [p for p in pills if p[0] != "Accepted"]
+            if any(p["short"] == "Accepted" for p in pills):
+                pills = [p for p in pills if p["short"] != "Accepted"]
                 citation_html += " (Accepted)"
             img = images.get(global_idx)
             thumb = f'<img class="pub-thumb" src="{img}" alt="" loading="lazy">' if img else '<span class="pub-thumb-empty" aria-hidden="true"></span>'

@@ -429,7 +429,7 @@ table.data.cols-4 col.c4 { width: 48%; }
 }
 .photo-row img {
   flex: 1 1 260px;
-  width: 100%;
+  min-width: 0;
   aspect-ratio: 3 / 2;
   object-fit: cover;
   border: 1px solid var(--line);
@@ -484,6 +484,7 @@ table.data.cols-4 col.c4 { width: 48%; }
   white-space: normal;
   line-height: 1.4;
 }
+.tag-award a { color: inherit; border-bottom: 1px dotted currentColor; }
 
 /* research / topic cards */
 .cluster-group { margin-bottom: 44px; }
